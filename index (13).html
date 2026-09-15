@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Notes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f7f8fa;
+            color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* ===== RESIZABLE VIDEO ===== */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            padding-bottom: 40.5%; /* 16:9 ratio for 720px width */
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+            background: #000;
+            resize: horizontal;
+            min-width: 320px;
+            max-width: 100%;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            pointer-events: auto;
+        }
+
+        /* ===== NOTES SECTION ===== */
+        .notes-section {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e8e8e8;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .notes-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-shrink: 0;
+        }
+
+        .notes-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notes-title svg {
+            width: 20px;
+            height: 20px;
+            color: #888;
+        }
+
+        .notes-title h2 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .font-size-display {
+            font-size: 12px;
+            color: #bbb;
+            font-weight: 500;
+            background: #f5f5f5;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid #eee;
+        }
+
+        .notes-editor {
+            flex: 1;
+            width: 100%;
+            min-height: 360px;
+            max-height: 55vh;
+            background: #fafbfc;
+            border: 1px solid #e2e2e2;
+            border-radius: 12px;
+            padding: 22px 26px;
+            color: #1a1a1a;
+            font-family: 'Inter', sans-serif;
+            font-size: 20px;
+            line-height: 1.85;
+            outline: none;
+            overflow-y: auto;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            word-wrap: break-word;
+        }
+
+        .notes-editor:empty::before {
+            content: "Start typing your notes here while you watch...";
+            color: #bbb;
+            pointer-events: none;
+        }
+
+        .notes-editor:focus {
+            border-color: #c8c8c8;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.03);
+        }
+
+        .notes-editor b, .notes-editor strong {
+            font-weight: 700;
+        }
+
+        .notes-editor u {
+            text-decoration: underline;
+            text-decoration-color: #444;
+            text-underline-offset: 3px;
+        }
+
+        /* Scrollbar styling */
+        .notes-editor::-webkit-scrollbar {
+            width: 8px;
+        }
+        .notes-editor::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .notes-editor::-webkit-scrollbar-thumb {
+            background: #d0d0d0;
+            border-radius: 4px;
+        }
+        .notes-editor::-webkit-scrollbar-thumb:hover {
+            background: #b0b0b0;
+        }
+
+        .hint {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #bbb;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .hint kbd {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: 'Inter', monospace;
+            font-size: 11px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="video-wrapper" id="videoWrapper">
+            <iframe 
+                src="https://www.youtube.com/embed/boV9rCUMAO8?rel=0&modestbranding=1&showinfo=0" 
+                title="Video" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen>
+            </iframe>
+        </div>
+
+        <div class="notes-section">
+            <div class="notes-header">
+                <div class="notes-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                    </svg>
+                    <h2>Your Notes</h2>
+                </div>
+                <span class="font-size-display" id="fontSizeDisplay">20px</span>
+            </div>
+            <div 
+                class="notes-editor" 
+                id="notesEditor"
+                contenteditable="true"
+                spellcheck="false"
+            ></div>
+            <p class="hint">
+                <kbd>Ctrl</kbd>+<kbd>B</kbd> Bold · 
+                <kbd>Ctrl</kbd>+<kbd>U</kbd> Underline · 
+                <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>.</kbd> Larger · 
+                <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>,</kbd> Smaller
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('notesEditor');
+        const fontSizeDisplay = document.getElementById('fontSizeDisplay');
+        const videoWrapper = document.getElementById('videoWrapper');
+        const videoId = 'boV9rCUMAO8';
+        const storageKey = 'video_notes_' + videoId;
+
+        let currentFontSize = 20;
+        const minFontSize = 12;
+        const maxFontSize = 48;
+        const fontStep = 2;
+
+        // Load saved notes
+        const saved = localStorage.getItem(storageKey);
+        if (saved) editor.innerHTML = saved;
+
+        // Load saved font size
+        const savedFontSize = localStorage.getItem(storageKey + '_fontsize');
+        if (savedFontSize) {
+            currentFontSize = parseInt(savedFontSize);
+            editor.style.fontSize = currentFontSize + 'px';
+            fontSizeDisplay.textContent = currentFontSize + 'px';
+        }
+
+        // Load saved video width
+        const savedVideoWidth = localStorage.getItem(storageKey + '_videowidth');
+        if (savedVideoWidth) {
+            videoWrapper.style.width = savedVideoWidth + 'px';
+            videoWrapper.style.paddingBottom = (savedVideoWidth * 0.5625) + 'px';
+        }
+
+        // Auto-save notes
+        editor.addEventListener('input', () => {
+            localStorage.setItem(storageKey, editor.innerHTML);
+        });
+
+        // Save video width on resize
+        const resizeObserver = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                const width = entry.contentRect.width;
+                localStorage.setItem(storageKey + '_videowidth', width);
+                videoWrapper.style.paddingBottom = (width * 0.5625) + 'px';
+            }
+        });
+        resizeObserver.observe(videoWrapper);
+
+        // Keyboard shortcuts
+        editor.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'b' && !e.shiftKey) {
+                e.preventDefault();
+                document.execCommand('bold', false, null);
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'u' && !e.shiftKey) {
+                e.preventDefault();
+                document.execCommand('underline', false, null);
+            }
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === '>') {
+                e.preventDefault();
+                if (currentFontSize < maxFontSize) {
+                    currentFontSize += fontStep;
+                    updateFontSize();
+                }
+            }
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === '<') {
+                e.preventDefault();
+                if (currentFontSize > minFontSize) {
+                    currentFontSize -= fontStep;
+                    updateFontSize();
+                }
+            }
+        });
+
+        function updateFontSize() {
+            editor.style.fontSize = currentFontSize + 'px';
+            fontSizeDisplay.textContent = currentFontSize + 'px';
+            localStorage.setItem(storageKey + '_fontsize', currentFontSize);
+        }
+
+        // Ctrl+S to download
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's' && !e.shiftKey) {
+                e.preventDefault();
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = editor.innerHTML;
+                const text = tempDiv.innerText;
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'video-notes-' + videoId + '.txt';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        });
+    </script>
+</body>
+</html>
